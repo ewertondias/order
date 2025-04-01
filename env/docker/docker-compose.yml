@@ -1,0 +1,27 @@
+services:
+  order-postgres:
+    image: postgres:14
+    container_name: order-postgres
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: order
+    ports:
+      - "5432:5432"
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+
+  order-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - order_rabbitmq_data:/var/lib/rabbitmq/data/
+
+volumes:
+  order_postgres_data: {}
+  order_rabbitmq_data: {}
