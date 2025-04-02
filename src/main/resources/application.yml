@@ -30,3 +30,12 @@ spring:
         orderIn-in-0:
           destination: order-exchange
           group: ${spring.application.name}
+        orderOut-out-0:
+          destination: order-processed-exchange
+          group: ${spring.application.name}
+      rabbit:
+        bindings:
+          orderOut-out-0:
+            producer:
+              declare-exchange: true
+              exchange-type: topic

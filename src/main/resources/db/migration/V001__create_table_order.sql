@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS "order" (
     order_date          TIMESTAMP           NOT NULL,
     processing_date     TIMESTAMP           DEFAULT NOW() NOT NULL,
 
-    CONSTRAINT "pkey_order" PRIMARY KEY (id)
+    CONSTRAINT "pkey_order" PRIMARY KEY (id),
+    CONSTRAINT unique_order_id UNIQUE (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_order_status ON "order" (status);

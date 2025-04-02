@@ -1,22 +1,20 @@
 package com.challenge.order.domain.service;
 
 import com.challenge.order.application.stream.OrderEvent;
+import com.challenge.order.application.stream.OrderProcessedEvent;
 import com.challenge.order.application.stream.OrderProductEvent;
-import com.challenge.order.domain.Order;
-import com.challenge.order.domain.OrderProduct;
 import com.challenge.order.domain.ProcessOrderUseCase;
-import com.challenge.order.domain.enums.OrderStatusEnum;
+import com.challenge.order.domain.assembler.OrderAssembler;
 import com.challenge.order.domain.repository.OrderRepository;
+import com.challenge.order.infrastructure.config.StreamPublisher;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProcessOrderService implements ProcessOrderUseCase {
@@ -24,28 +22,38 @@ public class ProcessOrderService implements ProcessOrderUseCase {
     private static final Logger log = LoggerFactory.getLogger(ProcessOrderService.class);
 
     private final OrderRepository orderRepository;
+    private final StreamPublisher streamPublisher;
 
-    public ProcessOrderService(OrderRepository orderRepository) {
+    public ProcessOrderService(OrderRepository orderRepository, StreamPublisher streamPublisher) {
         this.orderRepository = orderRepository;
+        this.streamPublisher = streamPublisher;
     }
 
     @Override
     @Transactional
-    public void when(Set<OrderEvent> event) {
-        event.forEach(orderEvent -> {
-            try {
-                validateDuplicateOrder(orderEvent);
+    public void when(OrderEvent orderEvent) {
+        try {
+            this.validateDuplicateOrder(orderEvent);
 
-                var order = createOrder(orderEvent);
-                var products = createProduct(orderEvent, order);
+            var total = calculateTotalOrderValue(orderEvent.products());
+            var order = OrderAssembler.toOrder(orderEvent, total);
+            var products = OrderAssembler.toOrderProduct(orderEvent, order);
 
-                order.addProducts(products);
+            order.addProducts(products);
 
-                orderRepository.save(order);
-            } catch (Exception e) {
-                log.error("Pedido duplicado");
-            }
-        });
+            var orderProcessed = orderRepository.save(order);
+
+            var orderProcessedEvent = OrderAssembler.toOrderProcessedEvent(orderProcessed);
+
+            this.on(orderProcessedEvent);
+        } catch (Exception e) {
+            log.error("Pedido duplicado");
+        }
+    }
+
+    @Override
+    public void on(OrderProcessedEvent orderProcessedEvent) {
+        streamPublisher.send(orderProcessedEvent);
     }
 
     private void validateDuplicateOrder(OrderEvent orderEvent) {
@@ -54,30 +62,6 @@ public class ProcessOrderService implements ProcessOrderUseCase {
         if (orderRepository.existsById(orderId)) {
             throw new RuntimeException("Pedido duplicado");
         }
-    }
-
-    private Order createOrder(OrderEvent orderEvent) {
-        var total = calculateTotalOrderValue(orderEvent.products());
-        var orderId = UUID.fromString(orderEvent.id());
-
-        return Order.builder()
-            .id(orderId)
-            .total(total)
-            .status(OrderStatusEnum.PROCESSED)
-            .orderDate(LocalDateTime.parse(orderEvent.date()))
-            .processingDate(LocalDateTime.now())
-            .build();
-    }
-
-    private Set<OrderProduct> createProduct(OrderEvent orderEvent, Order order) {
-        return orderEvent.products().stream()
-            .map(product -> OrderProduct.builder()
-                .id(UUID.fromString(product.id()))
-                .name(product.name())
-                .value(product.value())
-                .order(order)
-                .build())
-            .collect(Collectors.toSet());
     }
 
     private BigDecimal calculateTotalOrderValue(Set<OrderProductEvent> products) {

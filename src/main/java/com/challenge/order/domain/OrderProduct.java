@@ -37,4 +37,20 @@ public class OrderProduct {
         return new OrderProductBuilder();
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public BigDecimal getValue() {
+        return value;
+    }
+
 }

@@ -54,4 +54,29 @@ public class Order {
     public void addProducts(Set<OrderProduct> products) {
         this.products.addAll(products);
     }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public OrderStatusEnum getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return orderDate;
+    }
+
+    public LocalDateTime getProcessingDate() {
+        return processingDate;
+    }
+
+    public Set<OrderProduct> getProducts() {
+        return products;
+    }
+
 }

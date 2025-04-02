@@ -4,7 +4,6 @@ import com.challenge.order.domain.ProcessOrderUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Set;
 import java.util.function.Consumer;
 
 @Configuration
@@ -17,7 +16,7 @@ public class OrderConsumerConfig {
     }
 
     @Bean
-    public Consumer<Set<OrderEvent>> orderIn() {
+    public Consumer<OrderEvent> orderIn() {
         return processOrder::when;
     }
 

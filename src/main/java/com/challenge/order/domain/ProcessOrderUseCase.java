@@ -1,11 +1,11 @@
 package com.challenge.order.domain;
 
 import com.challenge.order.application.stream.OrderEvent;
-
-import java.util.Set;
+import com.challenge.order.application.stream.OrderProcessedEvent;
 
 public interface ProcessOrderUseCase {
 
-    void when(Set<OrderEvent> event);
+    void when(OrderEvent orderEvent);
+    void on(OrderProcessedEvent orderProcessedEvent);
 
 }
