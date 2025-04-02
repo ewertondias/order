@@ -35,6 +35,11 @@ spring:
           group: ${spring.application.name}
       rabbit:
         bindings:
+          orderIn-in-0:
+            consumer:
+              auto-bind-dlq: true
+              dead-letter-queue-name: order-error-queue
+              dead-letter-exchange: DLX
           orderOut-out-0:
             producer:
               declare-exchange: true

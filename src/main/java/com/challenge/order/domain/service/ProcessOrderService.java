@@ -5,6 +5,8 @@ import com.challenge.order.application.stream.OrderProcessedEvent;
 import com.challenge.order.application.stream.OrderProductEvent;
 import com.challenge.order.domain.ProcessOrderUseCase;
 import com.challenge.order.domain.assembler.OrderAssembler;
+import com.challenge.order.domain.exception.OrderDuplicateException;
+import com.challenge.order.domain.exception.OrderException;
 import com.challenge.order.domain.repository.OrderRepository;
 import com.challenge.order.infrastructure.config.StreamPublisher;
 import jakarta.transaction.Transactional;
@@ -46,8 +48,12 @@ public class ProcessOrderService implements ProcessOrderUseCase {
             var orderProcessedEvent = OrderAssembler.toOrderProcessedEvent(orderProcessed);
 
             this.on(orderProcessedEvent);
-        } catch (Exception e) {
-            log.error("Pedido duplicado");
+        } catch (OrderDuplicateException ex) {
+            log.error("Error consuming order id {} - {}", orderEvent.id(), ex.getMessage());
+
+            throw new OrderDuplicateException();
+        } catch (Exception ex) {
+            throw new OrderException(ex.getMessage(), ex);
         }
     }
 
@@ -60,7 +66,7 @@ public class ProcessOrderService implements ProcessOrderUseCase {
         var orderId = UUID.fromString(orderEvent.id());
 
         if (orderRepository.existsById(orderId)) {
-            throw new RuntimeException("Pedido duplicado");
+            throw new OrderDuplicateException();
         }
     }
 
