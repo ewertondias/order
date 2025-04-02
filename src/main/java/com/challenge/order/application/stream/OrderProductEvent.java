@@ -1,4 +1,6 @@
 package com.challenge.order.application.stream;
 
-public record OrderProductEvent(String id, String name) {
+import java.math.BigDecimal;
+
+public record OrderProductEvent(String id, String name, BigDecimal value) {
 }

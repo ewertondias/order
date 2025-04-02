@@ -2,6 +2,22 @@ spring:
   application:
     name: order
 
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/order
+    username: postgres
+    password: order
+
+  jpa:
+    properties:
+      hibernate.globally_quoted_identifiers: true
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+  flyway:
+    enabled: true
+
   rabbitmq:
     host: localhost
     port: 5672
