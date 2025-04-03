@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.util.Objects.nonNull;
+
 @Service
 public class ProcessOrderService implements ProcessOrderUseCase {
 
@@ -45,9 +47,11 @@ public class ProcessOrderService implements ProcessOrderUseCase {
 
             var orderProcessed = orderRepository.save(order);
 
-            var orderProcessedEvent = OrderAssembler.toOrderProcessedEvent(orderProcessed);
+            if (nonNull(orderProcessed)) {
+                var orderProcessedEvent = OrderAssembler.toOrderProcessedEvent(orderProcessed);
 
-            this.on(orderProcessedEvent);
+                this.on(orderProcessedEvent);
+            }
         } catch (OrderDuplicateException ex) {
             log.error("Error consuming order id {} - {}", orderEvent.id(), ex.getMessage());
 

@@ -7,11 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import java.util.function.Consumer;
 
 @Configuration
-public class OrderConsumerConfig {
+public class OrderConsumer {
 
     private final ProcessOrderUseCase processOrder;
 
-    public OrderConsumerConfig(ProcessOrderUseCase processOrder) {
+    public OrderConsumer(ProcessOrderUseCase processOrder) {
         this.processOrder = processOrder;
     }
 
