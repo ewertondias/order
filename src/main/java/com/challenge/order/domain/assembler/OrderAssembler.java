@@ -44,16 +44,14 @@ public class OrderAssembler {
     }
 
     public static OrderProcessedEvent toOrderProcessedEvent(Order order) {
-        var dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
         var orderProductEvents = toOrderProductEvent(order);
 
         return new OrderProcessedEvent(
             order.getId().toString(),
             order.getTotal(),
             order.getStatus(),
-            order.getOrderDate().format(dateTimeFormatter),
-            order.getProcessingDate().format(dateTimeFormatter),
+            order.getOrderDate(),
+            order.getProcessingDate(),
             orderProductEvents
         );
     }
