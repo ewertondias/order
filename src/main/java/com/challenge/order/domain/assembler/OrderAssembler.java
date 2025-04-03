@@ -6,10 +6,11 @@ import com.challenge.order.application.stream.OrderProductEvent;
 import com.challenge.order.domain.Order;
 import com.challenge.order.domain.OrderProduct;
 import com.challenge.order.domain.enums.OrderStatusEnum;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,6 +34,10 @@ public class OrderAssembler {
     }
 
     public static Set<OrderProduct> toOrderProduct(OrderEvent orderEvent, Order order) {
+        if (ObjectUtils.isEmpty(orderEvent.products())) {
+            return Collections.emptySet();
+        }
+
         return orderEvent.products().stream()
             .map(product -> OrderProduct.builder()
                 .id(UUID.fromString(product.id()))

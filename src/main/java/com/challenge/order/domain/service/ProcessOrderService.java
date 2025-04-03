@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -75,6 +76,10 @@ public class ProcessOrderService implements ProcessOrderUseCase {
     }
 
     private BigDecimal calculateTotalOrderValue(Set<OrderProductEvent> products) {
+        if (ObjectUtils.isEmpty(products)) {
+            return BigDecimal.ZERO;
+        }
+
         return products.stream()
             .map(OrderProductEvent::value)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
